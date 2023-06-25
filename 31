@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_TRACKS 100
+
+void cscan(int tracks[], int numTracks, int startPosition) {
+    int totalHeadMovement = 0;
+    int currentTrack = startPosition;
+    int direction = 1; // 1: Moving towards higher track numbers, -1: Moving towards lower track numbers
+
+    // Sort the tracks in ascending order
+    for (int i = 0; i < numTracks - 1; i++) {
+        for (int j = 0; j < numTracks - i - 1; j++) {
+            if (tracks[j] > tracks[j + 1]) {
+                int temp = tracks[j];
+                tracks[j] = tracks[j + 1];
+                tracks[j + 1] = temp;
+            }
+        }
+    }
+
+    // Find the index where the current track is located
+    int currentIndex = 0;
+    for (int i = 0; i < numTracks; i++) {
+        if (tracks[i] == currentTrack) {
+            currentIndex = i;
+            break;
+        }
+    }
+
+    // Move towards higher track numbers
+    for (int i = currentIndex; i < numTracks; i++) {
+        totalHeadMovement += abs(tracks[i] - currentTrack);
+        currentTrack = tracks[i];
+    }
+
+    // Move to the highest track number
+    totalHeadMovement += abs(MAX_TRACKS - currentTrack);
+    currentTrack = MAX_TRACKS;
+
+    // Move towards lower track numbers
+    for (int i = 0; i < currentIndex; i++) {
+        totalHeadMovement += abs(tracks[i] - currentTrack);
+        currentTrack = tracks[i];
+    }
+
+    // Print the order of track numbers visited
+    printf("Track Order: ");
+    for (int i = currentIndex; i < numTracks; i++) {
+        printf("%d ", tracks[i]);
+    }
+    for (int i = 0; i < currentIndex; i++) {
+        printf("%d ", tracks[i]);
+    }
+    printf("\n");
+
+    // Calculate and print the average head movement
+    float averageHeadMovement = (float)totalHeadMovement / numTracks;
+    printf("Average Head Movement: %.2f\n", averageHeadMovement);
+}
+
+int main() {
+    int numTracks = 5;
+    int tracks[] = {55, 58, 60, 70, 18};
+    int startPosition = 55;
+
+    cscan(tracks, numTracks, startPosition);
+
+    return 0;
