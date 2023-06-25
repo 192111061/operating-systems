@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_FRAMES 10
+
+int page_faults(int pages[], int num_pages, int num_frames) {
+    int frames[MAX_FRAMES];
+    int num_faults = 0;
+    bool is_frame_full = false;
+
+    for (int i = 0; i < num_frames; i++)
+        frames[i] = -1;
+
+    for (int i = 0; i < num_pages; i++) {
+        bool is_page_fault = true;
+
+        for (int j = 0; j < num_frames; j++) {
+            if (frames[j] == pages[i]) {
+                is_page_fault = false;
+                break;
+            }
+        }
+
+        if (is_page_fault) {
+            if (is_frame_full) {
+                int farthest = -1;
+                int farthest_page_index = -1;
+
+                for (int j = 0; j < num_frames; j++) {
+                    int k = i + 1;
+                    while (k < num_pages) {
+                        if (pages[k] == frames[j]) {
+                            if (k > farthest) {
+                                farthest = k;
+                                farthest_page_index = j;
+                            }
+                            break;
+                        }
+                        k++;
+                    }
+
+                    if (k == num_pages) {
+                        farthest_page_index = j;
+                        break;
+                    }
+                }
+
+                frames[farthest_page_index] = pages[i];
+            } else {
+                for (int j = 0; j < num_frames; j++) {
+                    if (frames[j] == -1) {
+                        frames[j] = pages[i];
+                        break;
+                    }
+                }
+
+                if (i == num_frames - 1)
+                    is_frame_full = true;
+            }
+
+            num_faults++;
+        }
+    }
+
+    return num_faults;
+}
+
+int main() {
+    int num_frames = 3;
+    int pages[] = {4, 1, 2, 4, 3, 2, 1, 5};
+    int num_pages = sizeof(pages) / sizeof(pages[0]);
+
+    int num_faults = page_faults(pages, num_pages, num_frames);
+
+    printf("Number of page faults: %d\n", num_faults);
+
+    return 0;
+}
